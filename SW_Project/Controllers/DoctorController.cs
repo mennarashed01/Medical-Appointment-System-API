@@ -18,13 +18,32 @@ namespace SW_Project.Controllers
             _doctorService = doctorService;
         }
 
-        [HttpGet("{id}")]
+        [HttpGet("{id:int}")]
         public ActionResult<DoctorResponseDto> GetById(int id)
         {
-            var doctor = _doctorService.Get(id);
-            if (doctor == null) return NotFound(new { Message = $"Doctor with ID {id} not found." });
+            var doctor = _doctorService.GetById(id);
+            if (doctor == null) 
+                return NotFound(new { Message = $"Doctor with ID {id} not found." });
             
             return Ok(doctor);
+        }
+        [HttpGet("{Name:alpha}")]
+        public ActionResult<List<DoctorResponseDto>> GetByName(string Name)
+        {
+            var doctor = _doctorService.GetByName(Name);
+            if (doctor == null) 
+                return NotFound(new { Message = $"Doctor with Name:  {Name} not found." });
+            
+            return Ok(doctor);
+        }
+        [HttpGet("search-by-symptom/{symptomName}")]
+        public ActionResult<List<DoctorResponseDto>> GeyBySymptom(string symptomName)
+        {
+            var doctors = _doctorService.GetBySymptoms(symptomName);
+            if (doctors == null) 
+                return NotFound(new { Message = $"Doctors with Symptom:  {symptomName} not found." });
+            
+            return Ok(doctors);
         }
         [HttpGet]
         public ActionResult<List<DoctorResponseDto>> GetAll()
@@ -51,7 +70,7 @@ namespace SW_Project.Controllers
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] UpdateDoctorDto doctor)
         {
-            var existingDoctor = _doctorService.Get(id);
+            var existingDoctor = _doctorService.GetById(id);
             if (existingDoctor == null)
             {
                 return NotFound(new { Message = $"Cannot update. Doctor with ID {id} not found." });
@@ -65,7 +84,7 @@ namespace SW_Project.Controllers
         [HttpDelete("{id}")]
         public IActionResult Delete(int id)
         {
-            var existingDoctor = _doctorService.Get(id);
+            var existingDoctor = _doctorService.GetById(id);
             if (existingDoctor == null)
             {
                 return NotFound(new { Message = $"Cannot delete. Doctor with ID {id} not found." });

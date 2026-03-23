@@ -21,5 +21,7 @@ namespace SW_Project.DTOs
         [Required]
         [Range(0, 100000)]
         public decimal AppointmentPrice { get; set; }
+
+        public List<int> SymptomIds { get; set; } = new List<int>();
     }
 }

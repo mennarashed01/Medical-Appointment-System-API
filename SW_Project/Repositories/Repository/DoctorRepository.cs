@@ -32,6 +32,8 @@ namespace SW_Project.Repositories.Repository
             List<Doctor> doctors= context.Doctors
                         .Include(d=> d.User)
                         .Include(d=> d.Specialization)
+                        .Include(d => d.DoctorSymptoms)
+                        .ThenInclude(ds => ds.Symptom)
                         .ToList();
             return doctors;
         }
@@ -41,6 +43,8 @@ namespace SW_Project.Repositories.Repository
             var doctor = context.Doctors
                         .Include(d => d.User)
                         .Include(d => d.Specialization)
+                        .Include(d => d.DoctorSymptoms)
+                        .ThenInclude(ds => ds.Symptom)
                         .FirstOrDefault(d => d.Id == id);
             return doctor;
         }

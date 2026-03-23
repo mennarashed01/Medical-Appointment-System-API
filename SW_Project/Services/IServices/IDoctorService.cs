@@ -8,8 +8,11 @@ namespace SW_Project.Services.IServices
         void Update(int id, UpdateDoctorDto dto);
         void Delete(int id);
 
-        DoctorResponseDto Get(int id);
+        DoctorResponseDto GetById(int id);
         List<DoctorResponseDto> GetAll();
+        List<DoctorResponseDto> GetByName(string name);
+        List<DoctorResponseDto> GetBySymptoms(string symptomName);
+
     }
 
 }

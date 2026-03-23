@@ -51,7 +51,7 @@ namespace SW_Project.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("Appointments");
+                    b.ToTable("Appointments", (string)null);
                 });
 
             modelBuilder.Entity("SW_Project.Models.Diagnosis", b =>
@@ -83,7 +83,7 @@ namespace SW_Project.Migrations
 
                     b.HasIndex("PatientId");
 
-                    b.ToTable("Diagnoses");
+                    b.ToTable("Diagnoses", (string)null);
                 });
 
             modelBuilder.Entity("SW_Project.Models.Doctor", b =>
@@ -115,7 +115,7 @@ namespace SW_Project.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Doctors");
+                    b.ToTable("Doctors", (string)null);
                 });
 
             modelBuilder.Entity("SW_Project.Models.DoctorSymptom", b =>
@@ -130,7 +130,7 @@ namespace SW_Project.Migrations
 
                     b.HasIndex("SymptomId");
 
-                    b.ToTable("DoctorSymptoms");
+                    b.ToTable("DoctorSymptoms", (string)null);
                 });
 
             modelBuilder.Entity("SW_Project.Models.Patient", b =>
@@ -154,7 +154,7 @@ namespace SW_Project.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("Patients");
+                    b.ToTable("Patients", (string)null);
                 });
 
             modelBuilder.Entity("SW_Project.Models.Specialization", b =>
@@ -172,7 +172,7 @@ namespace SW_Project.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Specializations");
+                    b.ToTable("Specializations", (string)null);
                 });
 
             modelBuilder.Entity("SW_Project.Models.Symptom", b =>
@@ -193,7 +193,7 @@ namespace SW_Project.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Symptoms");
+                    b.ToTable("Symptoms", (string)null);
                 });
 
             modelBuilder.Entity("SW_Project.Models.User", b =>
@@ -229,7 +229,7 @@ namespace SW_Project.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
                 });
 
             modelBuilder.Entity("SW_Project.Models.Appointment", b =>

@@ -22,5 +22,7 @@ namespace SW_Project.Models
         [Required]
         [Column(TypeName ="decimal(18,2)")]
         public decimal AppointmentPrice { get; set; }
+
+        public virtual ICollection<DoctorSymptom> DoctorSymptoms { get; set; } = new List<DoctorSymptom>();
     }
 }
