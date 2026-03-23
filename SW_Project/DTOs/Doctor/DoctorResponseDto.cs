@@ -1,4 +1,4 @@
-﻿namespace SW_Project.DTOs
+﻿namespace SW_Project.DTOs.Doctor
 {
     public class DoctorResponseDto
     {

@@ -29,9 +29,11 @@ namespace SW_Project
 
             //Repository
             builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+            builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 
             //Services
             builder.Services.AddScoped<IDoctorService, DoctorServices>();
+            builder.Services.AddScoped<IPatientServices, PatientService>();
 
             var app = builder.Build();
 

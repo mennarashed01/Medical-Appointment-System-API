@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace SW_Project.DTOs
+namespace SW_Project.DTOs.Doctor
 {
     public class UpdateDoctorDto
     {

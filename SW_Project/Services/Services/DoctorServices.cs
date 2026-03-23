@@ -1,6 +1,6 @@
 ﻿using BCrypt.Net;
 using Microsoft.EntityFrameworkCore;
-using SW_Project.DTOs;
+using SW_Project.DTOs.Doctor;
 using SW_Project.Models;
 using SW_Project.Repositories.IRepository;
 using SW_Project.Services.IServices;
@@ -194,5 +194,24 @@ namespace SW_Project.Services.Services
             }).ToList();
         }
 
+        public List<DoctorResponseDto> GetBySpecialization(string specializationName)
+        {
+            var doctors = _repo.GetAll()
+                .Where(d => d.Specialization.Name.Contains(specializationName))
+                .ToList();
+
+            return doctors.Select(d => new DoctorResponseDto
+            {
+                Id = d.Id,
+                Name = d.User.Name,
+                Email = d.User.Email,
+                Phone = d.User.Phone,
+                SpecializationName = d.Specialization.Name,
+                ClinicLocation = d.ClinicLocation,
+                AppointmentPrice = d.AppointmentPrice,
+                ContactInfo = d.ContactInfo,
+                Symptoms = d.DoctorSymptoms.Select(ds => ds.Symptom.Name).ToList()
+            }).ToList();
+        }
     }
 }

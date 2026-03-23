@@ -1,4 +1,4 @@
-﻿using SW_Project.DTOs;
+﻿using SW_Project.DTOs.Doctor;
 
 namespace SW_Project.Services.IServices
 {
@@ -12,6 +12,8 @@ namespace SW_Project.Services.IServices
         List<DoctorResponseDto> GetAll();
         List<DoctorResponseDto> GetByName(string name);
         List<DoctorResponseDto> GetBySymptoms(string symptomName);
+
+        List<DoctorResponseDto> GetBySpecialization(string specializationName);
 
     }
 

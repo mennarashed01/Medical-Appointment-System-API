@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using SW_Project.DTOs;
+using SW_Project.DTOs.Doctor;
 using SW_Project.Repositories.IRepository;
 using SW_Project.Services.IServices;
 using System.Diagnostics.CodeAnalysis;
@@ -27,12 +27,13 @@ namespace SW_Project.Controllers
             
             return Ok(doctor);
         }
-        [HttpGet("{Name:alpha}")]
-        public ActionResult<List<DoctorResponseDto>> GetByName(string Name)
+        
+        [HttpGet("search-by-name/{name}")]
+        public ActionResult<List<DoctorResponseDto>> GetByName(string name)
         {
-            var doctor = _doctorService.GetByName(Name);
+            var doctor = _doctorService.GetByName(name);
             if (doctor == null) 
-                return NotFound(new { Message = $"Doctor with Name:  {Name} not found." });
+                return NotFound(new { Message = $"Doctor with Name:  {name} not found." });
             
             return Ok(doctor);
         }
@@ -42,6 +43,15 @@ namespace SW_Project.Controllers
             var doctors = _doctorService.GetBySymptoms(symptomName);
             if (doctors == null) 
                 return NotFound(new { Message = $"Doctors with Symptom:  {symptomName} not found." });
+            
+            return Ok(doctors);
+        }
+        [HttpGet("specialization/{specName}")]
+        public ActionResult<List<DoctorResponseDto>> GetBySpecialization(string specName)
+        {
+            var doctors = _doctorService.GetBySpecialization(specName);
+            if (doctors == null) 
+                return NotFound(new { Message = $"Doctors with Symptom:  {specName} not found." });
             
             return Ok(doctors);
         }
