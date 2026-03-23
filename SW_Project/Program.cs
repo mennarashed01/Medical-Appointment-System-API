@@ -1,5 +1,9 @@
 using Microsoft.EntityFrameworkCore;
 using SW_Project.Data;
+using SW_Project.Repositories.IRepository;
+using SW_Project.Repositories.Repository;
+using SW_Project.Services.IServices;
+using SW_Project.Services.Services;
 
 
 namespace SW_Project
@@ -17,9 +21,17 @@ namespace SW_Project
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
+
+
             //DbContext 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+            //Repository
+            builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
+
+            //Services
+            builder.Services.AddScoped<IDoctorService, DoctorServices>();
 
             var app = builder.Build();
 
