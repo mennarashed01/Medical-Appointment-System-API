@@ -15,6 +15,9 @@ namespace SW_Project.Services.Services
         {
             _repo = repo;
         }
+
+        #region CreatePatient
+        /*
         public void Create(CreatePatientDto dto)
         {
             if (dto.DateOfBirth.HasValue && dto.DateOfBirth.Value > DateTime.Now)
@@ -69,7 +72,9 @@ namespace SW_Project.Services.Services
             }
 
         }
+        */
 
+        #endregion
         public void Delete(int id)
         {
             var patient = _repo.GetById(id);

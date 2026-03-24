@@ -41,20 +41,20 @@ namespace SW_Project.Controllers
             return Ok(patient);
         }
 
-        [HttpPost]
-        public IActionResult Add([FromBody]CreatePatientDto dto)
-        {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
-            try
-            {
-                _patientServices.Create(dto);
-                return Ok(new { Message = "Patient Created Successfully!" });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Error = ex.Message });
-            }
-        }
+        //[HttpPost]
+        //public IActionResult Add([FromBody]CreatePatientDto dto)
+        //{
+        //    if (!ModelState.IsValid) return BadRequest(ModelState);
+        //    try
+        //    {
+        //        _patientServices.Create(dto);
+        //        return Ok(new { Message = "Patient Created Successfully!" });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new { Error = ex.Message });
+        //    }
+        //}
 
         [HttpPut("{id}")]
         public IActionResult Update(int id ,[FromBody] UpdatePatientDto dto)

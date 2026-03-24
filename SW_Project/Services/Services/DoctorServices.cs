@@ -15,7 +15,9 @@ namespace SW_Project.Services.Services
         {
             _repo = repo;
         }
-        public void Create(CreateDoctorDto dto)
+
+        #region CreateDoctor
+        /*public void Create(CreateDoctorDto dto)
         {
             var allDoctors = _repo.GetAll();
             if (allDoctors.Any(d => d.User.Email == dto.Email))
@@ -66,6 +68,10 @@ namespace SW_Project.Services.Services
                 throw new Exception($"Database Error: {innerMessage}");
             }
         }
+        */
+
+        #endregion
+
         public void Update(int id, UpdateDoctorDto dto)
         {
             var doctor = _repo.GetById(id);

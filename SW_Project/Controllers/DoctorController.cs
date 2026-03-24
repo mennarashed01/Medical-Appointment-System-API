@@ -63,19 +63,19 @@ namespace SW_Project.Controllers
         }
 
 
-        [HttpPost]
-        public ActionResult<CreateDoctorDto> Add(CreateDoctorDto doctor)
-        {
-            try
-            {
-                _doctorService.Create(doctor);
-                return Ok(new { Message = "Doctor created successfully." });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Message = ex.Message });
-            }
-        }
+        //[HttpPost]
+        //public ActionResult<CreateDoctorDto> Add(CreateDoctorDto doctor)
+        //{
+        //    try
+        //    {
+        //        _doctorService.Create(doctor);
+        //        return Ok(new { Message = "Doctor created successfully." });
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        return BadRequest(new { Message = ex.Message });
+        //    }
+        //}
 
         [HttpPut("{id}")]
         public IActionResult Update(int id, [FromBody] UpdateDoctorDto doctor)
