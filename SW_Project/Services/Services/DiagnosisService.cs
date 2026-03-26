@@ -58,6 +58,7 @@ namespace SW_Project.Services.Services
                 PatientId = oldDiag.PatientId,
                 Description = oldDiag.Description,
                 Prescription = dto.NewPrescription,
+                BloodTestResults = oldDiag.BloodTestResults,
                 DoctorNotes = dto.NewNotes,
                 Date = DateTime.Now,
                 Version = oldDiag.Version + 1

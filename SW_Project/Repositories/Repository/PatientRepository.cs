@@ -49,5 +49,10 @@ namespace SW_Project.Repositories.Repository
         {
             _context.Patients.Update(patient);
         }
+
+        public Patient GetByUserId(int userId)
+        {
+            return _context.Patients.FirstOrDefault(p => p.UserId == userId);
+        }
     }
 }

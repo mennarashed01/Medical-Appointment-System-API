@@ -80,6 +80,7 @@ namespace SW_Project
             builder.Services.AddScoped<IPatientRepository, PatientRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IDiagnosisRepository, DiagnosisRepository>();
+            builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
 
             //Services
             builder.Services.AddScoped<IDoctorService, DoctorServices>();
@@ -87,6 +88,7 @@ namespace SW_Project
             builder.Services.AddScoped<IAuthService, AuthService>();
             builder.Services.AddSingleton<IDoctorRecommendationService, DoctorRecommendationService>();
             builder.Services.AddScoped<IDiagnosisService, DiagnosisService>();
+            builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 
             var app = builder.Build();
 
