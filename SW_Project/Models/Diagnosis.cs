@@ -15,8 +15,14 @@ namespace SW_Project.Models
         [Required]
         [DataType(DataType.Date)]
         public DateTime Date { get; set; }
-        public string? Notes { get; set; }
-        public string? Prescription { get; set; }
+        [Required]
+        public string Description { get; set; }
+        [Required]
+        public string Prescription { get; set; }
+        public string? BloodTestResults { get; set; }
+        public string? DoctorNotes { get; set; }
+
+        public int Version { get; set; } = 1;
 
     }
 }

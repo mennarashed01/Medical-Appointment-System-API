@@ -44,7 +44,6 @@ namespace SW_Project
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen(options =>
             {
-                // ده اللي بيخلي Swagger يفهم إن فيه Bearer Token
                 options.AddSecurityDefinition("Bearer", new Microsoft.OpenApi.Models.OpenApiSecurityScheme
                 {
                     Name = "Authorization",
@@ -55,21 +54,20 @@ namespace SW_Project
                     Description = "Enter 'Bearer' [space] and then your valid token.\n\nExample: \"Bearer eyJhbG...\""
                 });
 
-                // ده اللي بيخلي القفل يظهر على كل الـ Endpoints
                 options.AddSecurityRequirement(new Microsoft.OpenApi.Models.OpenApiSecurityRequirement
-    {
-        {
-            new Microsoft.OpenApi.Models.OpenApiSecurityScheme
-            {
-                Reference = new Microsoft.OpenApi.Models.OpenApiReference
                 {
-                    Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
-                    Id = "Bearer"
-                }
-            },
-            new string[] {}
-        }
-    });
+                    {
+                        new Microsoft.OpenApi.Models.OpenApiSecurityScheme
+                        {
+                            Reference = new Microsoft.OpenApi.Models.OpenApiReference
+                            {
+                                Type = Microsoft.OpenApi.Models.ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            }
+                        },
+                        new string[] {}
+                    }
+                });
             });
 
 
@@ -81,11 +79,14 @@ namespace SW_Project
             builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
             builder.Services.AddScoped<IPatientRepository, PatientRepository>();
             builder.Services.AddScoped<IUserRepository, UserRepository>();
+            builder.Services.AddScoped<IDiagnosisRepository, DiagnosisRepository>();
 
             //Services
             builder.Services.AddScoped<IDoctorService, DoctorServices>();
             builder.Services.AddScoped<IPatientServices, PatientService>();
             builder.Services.AddScoped<IAuthService, AuthService>();
+            builder.Services.AddSingleton<IDoctorRecommendationService, DoctorRecommendationService>();
+            builder.Services.AddScoped<IDiagnosisService, DiagnosisService>();
 
             var app = builder.Build();
 

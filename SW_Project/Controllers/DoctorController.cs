@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SW_Project.DTOs.Doctor;
 using SW_Project.Repositories.IRepository;
 using SW_Project.Services.IServices;
+using SW_Project.Services.Services;
 using System.Diagnostics.CodeAnalysis;
 
 namespace SW_Project.Controllers
@@ -12,13 +14,16 @@ namespace SW_Project.Controllers
     public class DoctorController : ControllerBase
     {
         private readonly IDoctorService _doctorService;
+        private readonly IDiagnosisService diagnosis;
 
-        public DoctorController(IDoctorService doctorService)
+        public DoctorController(IDoctorService doctorService, IDiagnosisService diagnosis)
         {
             _doctorService = doctorService;
+            this.diagnosis = diagnosis;
         }
 
         [HttpGet("{id:int}")]
+        [Authorize]
         public ActionResult<DoctorResponseDto> GetById(int id)
         {
             var doctor = _doctorService.GetById(id);
@@ -29,6 +34,7 @@ namespace SW_Project.Controllers
         }
         
         [HttpGet("search-by-name/{name}")]
+        [Authorize]
         public ActionResult<List<DoctorResponseDto>> GetByName(string name)
         {
             var doctor = _doctorService.GetByName(name);
@@ -37,7 +43,9 @@ namespace SW_Project.Controllers
             
             return Ok(doctor);
         }
+        
         [HttpGet("search-by-symptom/{symptomName}")]
+        [Authorize]
         public ActionResult<List<DoctorResponseDto>> GeyBySymptom(string symptomName)
         {
             var doctors = _doctorService.GetBySymptoms(symptomName);
@@ -46,16 +54,20 @@ namespace SW_Project.Controllers
             
             return Ok(doctors);
         }
+        
         [HttpGet("specialization/{specName}")]
+        [Authorize]
         public ActionResult<List<DoctorResponseDto>> GetBySpecialization(string specName)
         {
             var doctors = _doctorService.GetBySpecialization(specName);
             if (doctors == null) 
-                return NotFound(new { Message = $"Doctors with Symptom:  {specName} not found." });
+                return NotFound(new { Message = $"Doctors with Specialization:  {specName} not found." });
             
             return Ok(doctors);
         }
+        
         [HttpGet]
+        [Authorize]
         public ActionResult<List<DoctorResponseDto>> GetAll()
         {
             var doctors = _doctorService.GetAll();
@@ -78,6 +90,7 @@ namespace SW_Project.Controllers
         //}
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Doctor")]
         public IActionResult Update(int id, [FromBody] UpdateDoctorDto doctor)
         {
             var existingDoctor = _doctorService.GetById(id);
@@ -92,6 +105,7 @@ namespace SW_Project.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Doctor")]
         public IActionResult Delete(int id)
         {
             var existingDoctor = _doctorService.GetById(id);
@@ -102,6 +116,17 @@ namespace SW_Project.Controllers
             _doctorService.Delete(id);
             return Ok(new { Message = "Doctor deleted successfully." });
 
+        }
+
+        [HttpGet("my-patients")]
+        [Authorize(Roles = "Doctor")]
+        public IActionResult GetMyPatients()
+        {
+            var userId = int.Parse(User.FindFirst("Id").Value);
+
+            var patients = diagnosis.GetPatientsForDoctor(userId);
+
+            return Ok(patients);
         }
     }
 }

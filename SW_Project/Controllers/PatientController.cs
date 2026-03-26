@@ -11,11 +11,29 @@ namespace SW_Project.Controllers
     public class PatientController : ControllerBase
     {
         private readonly IPatientServices _patientServices;
+        private readonly IDoctorRecommendationService _recommendationService;
 
-        public PatientController(IPatientServices services)
+        public PatientController(IPatientServices services, IDoctorRecommendationService recommendationService)
         {
-              _patientServices = services;
+            _patientServices = services;
+            _recommendationService = recommendationService;
         }
+
+        [HttpPost("recommend-doctors")]
+        public IActionResult RecommendDoctors([FromBody] SymptomSearchDto dto)
+        {
+            var doctors = _recommendationService.GetRecommendedDoctors(dto.Symptoms);
+
+            var result = doctors.Select(d => new {
+                DoctorName = d.User.Name,
+                Specialization = d.Specialization.Name,
+                Location = d.ClinicLocation,
+                Price = d.AppointmentPrice
+            });
+
+            return Ok(result);
+        }
+
         [HttpGet]
         public ActionResult<List<PatientResponseDto>> GetAll()
         {

@@ -6,6 +6,7 @@ namespace SW_Project.Repositories.IRepository
     {
         List<Doctor> GetAll();
         Doctor GetById(int id);
+        Doctor GetByUserId(int userId);
         void Add (Doctor doctor);
         void Update (Doctor doctor);
         void Delete (Doctor doctor);

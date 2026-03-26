@@ -53,5 +53,10 @@ namespace SW_Project.Repositories.Repository
         {
             context.SaveChanges();
         }
+
+        public Doctor GetByUserId(int userId)
+        {
+            return context.Doctors.FirstOrDefault(d=> d.UserId == userId);
+        }
     }
 }
