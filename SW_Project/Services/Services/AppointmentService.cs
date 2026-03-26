@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using SW_Project.Data;
 using SW_Project.DTOs.Appointment;
 using SW_Project.Models;
 using SW_Project.Repositories.IRepository;
@@ -11,11 +12,15 @@ namespace SW_Project.Services.Services
     {
         private readonly IAppointmentRepository appointmentRepo;
         private readonly IDoctorRepository doctorRepo;
+        private readonly ISecretaryRepository secretaryRepo;
+        private readonly ApplicationDbContext context;
 
-        public AppointmentService(IAppointmentRepository appointmentRepo, IDoctorRepository doctorRepo)
+        public AppointmentService(IAppointmentRepository appointmentRepo, IDoctorRepository doctorRepo,ISecretaryRepository secretaryRepo,ApplicationDbContext context)
         {
             this.appointmentRepo = appointmentRepo;
             this.doctorRepo = doctorRepo;
+            this.secretaryRepo = secretaryRepo;
+            this.context = context;
         }
         public void BookAppointment(int patientId, BookAppointmentDto dto)
         {
@@ -37,9 +42,10 @@ namespace SW_Project.Services.Services
 
         public async Task<IEnumerable<AppointmentResponseDto>> GetUserAppointmentsAsync(int userId, Role role)
         {
-            var allAppointments = await appointmentRepo.GetAllAsync();
-
-            var query = allAppointments.AsQueryable();
+            var query = context.Appointments
+                .Include(a => a.Patient).ThenInclude(p => p.User)
+                .Include(a => a.Doctor).ThenInclude(d => d.User)
+                .AsQueryable();
 
             if (role == Role.Patient)
             {
@@ -49,16 +55,27 @@ namespace SW_Project.Services.Services
             {
                 query = query.Where(a => a.Doctor.UserId == userId);
             }
+            else if (role == Role.Secretary)
+            {
+                var secretary =  secretaryRepo.GetByUserId(userId);
 
-            return query.Select(a => new AppointmentResponseDto
+                if (secretary != null)
+                {
+                    query = query.Where(a => a.DoctorId == secretary.DoctorId);
+                }
+            }
+
+            var result = await  query.Select(a => new AppointmentResponseDto
             {
                 Id = a.Id,
                 PatientName = a.Patient.User.Name ,
                 DoctorName = a.Doctor.User.Name,
                 Date = a.Date,
                 Status = a.Status.ToString(),
-                Price = a.Doctor.AppointmentPrice
-            }).ToList();
+                Price = a.Price
+            }).ToListAsync();
+
+            return result;
         }
 
         public void UpdateAppointmentStatus(int appointmentId, Status newStatus)

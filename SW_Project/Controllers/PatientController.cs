@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using SW_Project.DTOs.Patient;
 using SW_Project.Models;
 using SW_Project.Services.IServices;
+using SW_Project.Services.Services;
+using System.Security.Claims;
 
 namespace SW_Project.Controllers
 {
@@ -93,6 +96,20 @@ namespace SW_Project.Controllers
                 return NotFound(new { Message = $"Cannot Delete. Patient with ID {id} not found." });
             _patientServices.Delete(id);
             return Ok(new { Message = "Patient Deleted Successfully!" });
+        }
+
+        [HttpGet("my-medical-record")]
+        [Authorize(Roles = "Patient")]
+        public async Task<IActionResult> GetMyMedicalRecord()
+        {
+            var claim = User.FindFirst("Id");
+
+            if (claim == null) return Unauthorized("User ID  not found in token.");
+
+            int userId = int.Parse(claim.Value);
+            var record = await _patientServices.GetFullMedicalRecordAsync(userId);
+
+            return Ok(record);
         }
     }
 }

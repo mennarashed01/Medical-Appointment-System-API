@@ -12,5 +12,7 @@ namespace SW_Project.Services.IServices
         List<PatientResponseDto> GetByName(string name);
         List<PatientResponseDto> GetAll();
 
+        Task<MedicalRecordDto> GetFullMedicalRecordAsync(int patientUserId);
+
     }
 }

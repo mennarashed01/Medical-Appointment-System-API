@@ -81,6 +81,7 @@ namespace SW_Project
             builder.Services.AddScoped<IUserRepository, UserRepository>();
             builder.Services.AddScoped<IDiagnosisRepository, DiagnosisRepository>();
             builder.Services.AddScoped<IAppointmentRepository, AppointmentRepository>();
+            builder.Services.AddScoped<ISecretaryRepository, SecretaryRepository>();
 
             //Services
             builder.Services.AddScoped<IDoctorService, DoctorServices>();

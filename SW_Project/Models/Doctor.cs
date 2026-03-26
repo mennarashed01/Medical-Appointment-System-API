@@ -19,6 +19,10 @@ namespace SW_Project.Models
         public string? ClinicLocation { get; set; }
         public string? ContactInfo { get; set; }
 
+        [Range(0, 5)]
+        [Column(TypeName = "decimal(3,2)")]
+        public decimal Rating { get; set; } = 0;
+
         [Required]
         [Column(TypeName ="decimal(18,2)")]
         public decimal AppointmentPrice { get; set; }

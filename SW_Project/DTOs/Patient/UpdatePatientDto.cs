@@ -16,6 +16,8 @@ namespace SW_Project.DTOs.Patient
 
         [DataType(DataType.Date)]
         public DateTime? DateOfBirth { get; set; }
+        public string? BloodType { get; set; }
+        public string? ChronicDiseases { get; set; }
 
     }
 }

@@ -18,6 +18,7 @@ namespace SW_Project.Data
         public DbSet<Specialization> Specializations { get; set; }
         public DbSet<Symptom> Symptoms { get; set; }
         public DbSet<DoctorSymptom> DoctorSymptoms { get; set; }
+        public DbSet<Secretary> Secretarys { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

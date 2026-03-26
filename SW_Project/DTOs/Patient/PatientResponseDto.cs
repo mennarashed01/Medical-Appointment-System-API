@@ -11,6 +11,8 @@ namespace SW_Project.DTOs.Patient
         public string? Phone { get; set; }
         public Gender Gender { get; set; }
         public DateTime? DateOfBirth { get; set; }
+        public string? BloodType { get; set; }
+        public string? ChronicDiseases { get; set; }
         public int? Age => DateOfBirth.HasValue ? DateTime.Today.Year - DateOfBirth.Value.Year : null;
     }
 }

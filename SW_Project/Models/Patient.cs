@@ -14,8 +14,10 @@ namespace SW_Project.Models
         [Required]
         [EnumDataType(typeof(Gender))]
         public Gender Gender { get; set; }
-        
-        
+
+        public string? BloodType { get; set; }
+        public string? ChronicDiseases { get; set; }
+
     }
     public enum Gender
     {

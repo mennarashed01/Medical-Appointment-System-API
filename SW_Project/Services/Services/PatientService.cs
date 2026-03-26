@@ -1,4 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
+using SW_Project.Data;
 using SW_Project.DTOs.Patient;
 using SW_Project.Models;
 using SW_Project.Repositories.IRepository;
@@ -10,10 +12,12 @@ namespace SW_Project.Services.Services
     public class PatientService : IPatientServices
     {
         private readonly IPatientRepository _repo;
+        private readonly ApplicationDbContext context;
 
-        public PatientService(IPatientRepository repo)
+        public PatientService(IPatientRepository repo,ApplicationDbContext context)
         {
             _repo = repo;
+            this.context = context;
         }
 
         #region CreatePatient
@@ -96,7 +100,9 @@ namespace SW_Project.Services.Services
                 Email = p.User.Email,
                 Phone= p.User.Phone,
                 DateOfBirth = p.DateOfBirth,
-                Gender = p.Gender
+                Gender = p.Gender,
+                BloodType = p.BloodType,
+                ChronicDiseases = p.ChronicDiseases,
             }).ToList();
         }
 
@@ -111,7 +117,9 @@ namespace SW_Project.Services.Services
                 Email = patient.User.Email,
                 Phone = patient.User.Phone,
                 DateOfBirth= patient.DateOfBirth,
-                Gender = patient.Gender
+                Gender = patient.Gender,
+                ChronicDiseases= patient.ChronicDiseases,
+                BloodType = patient.BloodType
             };
         }
 
@@ -128,8 +136,42 @@ namespace SW_Project.Services.Services
                 Email = patient.User.Email,
                 Phone = patient.User.Phone,
                 DateOfBirth = patient.DateOfBirth,
-                Gender = patient.Gender
+                Gender = patient.Gender,
+                BloodType= patient.BloodType,
+                ChronicDiseases = patient.ChronicDiseases
             }).ToList();
+        }
+
+        public async Task<MedicalRecordDto> GetFullMedicalRecordAsync(int patientUserId)
+        {
+            var patient = await context.Patients
+                .Include(p => p.User)
+                .FirstOrDefaultAsync(p => p.UserId == patientUserId);
+
+            if (patient == null) return null;
+
+            var diagnoses = await context.Diagnoses
+                .Include(d => d.Doctor).ThenInclude(doc => doc.User)
+                .Where(d => d.PatientId == patient.Id)
+                .OrderByDescending(d => d.Date)
+                .Select(d => new PatientDiagnosisHistoryDto
+                {
+                    DiagnosisId = d.Id,
+                    DoctorName = d.Doctor.User.Name,
+                    Date = d.Date,
+                    Description = d.Description,
+                    Prescription = d.Prescription,
+                    Notes = d.DoctorNotes,
+                    BloodTestResults = d.BloodTestResults
+                }).ToListAsync();
+
+            return new MedicalRecordDto
+            {
+                PatientName = patient.User.Name,
+                BloodType = patient.BloodType,
+                ChronicDiseases = patient.ChronicDiseases,
+                Diagnoses = diagnoses
+            };
         }
 
         public void Update(int id, UpdatePatientDto dto)
@@ -142,6 +184,8 @@ namespace SW_Project.Services.Services
             patient.User.Phone = dto.Phone;
             patient.Gender = dto.Gender;
             patient.DateOfBirth = dto.DateOfBirth;
+            patient.BloodType = dto.BloodType;
+            patient.ChronicDiseases = dto.ChronicDiseases;
             _repo.Update(patient);
             _repo.Save();
 

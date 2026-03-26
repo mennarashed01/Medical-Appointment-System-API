@@ -39,5 +39,10 @@ namespace SW_Project.DTOs.Auth
         [Required]
         [EnumDataType(typeof(Gender))]
         public Gender Gender { get; set; }
+        public string? BloodType { get; set; }     
+        public string? ChronicDiseases { get; set; }
+
+        //Secretary
+        public int? AssignedDoctorId { get; set; }
     }
 }
