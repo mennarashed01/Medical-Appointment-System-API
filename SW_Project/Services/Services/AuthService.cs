@@ -154,6 +154,26 @@ namespace SW_Project.Services.Services
            
         }
 
+        public async Task<int> RegisterSecretaryUser(RegisterSecretaryDto dto)
+        {
+            var hashedPassword = BCrypt.Net.BCrypt.HashPassword(dto.Password);
+
+            var user = new User
+            {
+                Name = dto.Name,
+                Email = dto.Email,
+                Password = hashedPassword,
+                Phone = dto.Phone,
+                Role = Role.Secretary 
+            };
+
+            context.Users.Add(user);
+            await context.SaveChangesAsync();
+
+            return user.Id; 
+        }
+
+
         private string CreateTokent(User user)
         {
             var claims = new List<Claim>

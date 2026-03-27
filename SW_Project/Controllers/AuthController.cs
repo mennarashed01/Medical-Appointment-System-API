@@ -7,7 +7,7 @@ using SW_Project.Services.Services;
 
 namespace SW_Project.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/auth")]
     [ApiController]
     public class AuthController : ControllerBase
     {

@@ -10,6 +10,7 @@
         public string? ClinicLocation { get; set; }
         public string? ContactInfo { get; set; }
         public decimal AppointmentPrice { get; set; }
+        public decimal Ratings { get; set; }
 
         public List<string>? Symptoms { get; set; } = new List<string>();
     }

@@ -10,7 +10,7 @@ using System.Security.Claims;
 
 namespace SW_Project.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/appointments")]
     [ApiController]
     [Authorize]
     public class AppointmentController : ControllerBase
@@ -45,7 +45,7 @@ namespace SW_Project.Controllers
             }
         }
 
-        [HttpPatch("{id}/Status")]
+        [HttpPatch("{id}/status")]
         [Authorize(Roles = "Secretary,Doctor")] 
         public IActionResult UpdateStatus(int id, [FromBody] Status newStatus)
         {
@@ -66,7 +66,7 @@ namespace SW_Project.Controllers
             var roleClaim = User.Claims.FirstOrDefault(c => c.Type.Contains("role", StringComparison.OrdinalIgnoreCase));
 
             if (roleClaim == null)
-                return Unauthorized("Role claim not found in token. Available claims: " + string.Join(", ", User.Claims.Select(c => c.Type)));
+                return Unauthorized("Role claim not found in token.");
 
             var userIdClaim = User.Claims.FirstOrDefault(c => c.Type.Equals("Id", StringComparison.OrdinalIgnoreCase) || c.Type.Contains("nameidentifier"));
 
@@ -74,9 +74,11 @@ namespace SW_Project.Controllers
                 return Unauthorized("User ID claim not found");
 
             int userId = int.Parse(userIdClaim.Value);
-            var role = Enum.Parse<Role>(roleClaim.Value);
 
-            var result = await appointmentService.GetUserAppointmentsAsync(userId, role);
+            if (!Enum.TryParse(roleClaim.Value, true, out Role userRole))
+                return BadRequest("Invalid role format in token.");
+
+            var result = await appointmentService.GetUserAppointmentsAsync(userId, userRole);
             return Ok(result);
         }
     }

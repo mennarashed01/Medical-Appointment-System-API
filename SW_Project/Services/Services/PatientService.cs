@@ -79,10 +79,10 @@ namespace SW_Project.Services.Services
         */
 
         #endregion
-        public void Delete(int id)
+        public void Delete(int userId)
         {
-            var patient = _repo.GetById(id);
-            if(patient != null)
+            var patient = _repo.GetByUserId(userId);
+            if (patient != null)
             {
                 _repo.Delete(patient);
                 _repo.Save();
@@ -174,9 +174,9 @@ namespace SW_Project.Services.Services
             };
         }
 
-        public void Update(int id, UpdatePatientDto dto)
+        public void Update(int userId, UpdatePatientDto dto)
         {
-            var patient = _repo.GetById(id);
+            var patient = _repo.GetByUserId(userId);
             if (patient == null) 
                 throw new Exception("Patient not found");
 

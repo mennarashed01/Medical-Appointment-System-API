@@ -1,4 +1,5 @@
-﻿using SW_Project.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using SW_Project.Data;
 using SW_Project.Models;
 using SW_Project.Repositories.IRepository;
 
@@ -15,6 +16,16 @@ namespace SW_Project.Repositories.Repository
         public void Add(Secretary secertary)
         {
             context.Secretarys.Add(secertary);
+        }
+        public Secretary GetById(int id)
+        {
+            return context.Secretarys.FirstOrDefault(s => s.Id == id);
+        }
+
+        public void Delete(int id)
+        {
+            var secretary = context.Secretarys.Find(id);
+            context.Secretarys.Remove(secretary);
         }
 
         public Secretary GetByUserId(int userId)

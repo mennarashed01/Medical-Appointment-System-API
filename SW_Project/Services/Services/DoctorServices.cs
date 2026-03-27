@@ -72,9 +72,10 @@ namespace SW_Project.Services.Services
 
         #endregion
 
-        public void Update(int id, UpdateDoctorDto dto)
+        public void Update(int userId, UpdateDoctorDto dto)
         {
-            var doctor = _repo.GetById(id);
+
+            var doctor = _repo.GetByUserId(userId);
             if (doctor == null) return;
 
             doctor.User.Name = dto.Name;
@@ -101,7 +102,7 @@ namespace SW_Project.Services.Services
                 {
                     doctor.DoctorSymptoms.Add(new DoctorSymptom
                     {
-                        DoctorId = id,
+                        DoctorId = doctor.Id,
                         SymptomId = sId
                     });
                 }
@@ -111,9 +112,9 @@ namespace SW_Project.Services.Services
             _repo.Save();
         }
 
-        public void Delete(int id)
+        public void Delete(int userId)
         {
-            var doctor = _repo.GetById(id);
+            var doctor = _repo.GetByUserId(userId);
             var user = doctor.User;
             if (doctor != null)
             {
@@ -137,6 +138,7 @@ namespace SW_Project.Services.Services
                 ClinicLocation = d.ClinicLocation,
                 AppointmentPrice= d.AppointmentPrice,
                 ContactInfo= d.ContactInfo,
+                Ratings = d.Rating,
                 Symptoms = d.DoctorSymptoms.Select(ds => ds.Symptom.Name).ToList()
             }).ToList();
         }
@@ -155,6 +157,7 @@ namespace SW_Project.Services.Services
                 ClinicLocation = doctor.ClinicLocation,
                 AppointmentPrice= doctor.AppointmentPrice,
                 ContactInfo= doctor.ContactInfo,
+                Ratings = doctor.Rating,
                 Symptoms = doctor.DoctorSymptoms.Select(ds => ds.Symptom.Name).ToList()
             };
         }
@@ -175,6 +178,7 @@ namespace SW_Project.Services.Services
                 ClinicLocation = doctor.ClinicLocation,
                 AppointmentPrice = doctor.AppointmentPrice,
                 ContactInfo = doctor.ContactInfo,
+                Ratings = doctor.Rating,
                 Symptoms = doctor.DoctorSymptoms.Select(ds => ds.Symptom.Name).ToList()
             }).ToList();
         }
@@ -196,6 +200,7 @@ namespace SW_Project.Services.Services
                 ClinicLocation = d.ClinicLocation,
                 AppointmentPrice = d.AppointmentPrice,
                 ContactInfo = d.ContactInfo,
+                Ratings = d.Rating,
                 Symptoms = d.DoctorSymptoms.Select(ds => ds.Symptom.Name).ToList()
             }).ToList();
         }
@@ -216,8 +221,10 @@ namespace SW_Project.Services.Services
                 ClinicLocation = d.ClinicLocation,
                 AppointmentPrice = d.AppointmentPrice,
                 ContactInfo = d.ContactInfo,
+                Ratings = d.Rating,
                 Symptoms = d.DoctorSymptoms.Select(ds => ds.Symptom.Name).ToList()
             }).ToList();
         }
+
     }
 }

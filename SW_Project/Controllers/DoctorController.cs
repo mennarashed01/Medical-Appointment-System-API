@@ -1,7 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using SW_Project.Data;
+using SW_Project.DTOs.Auth;
 using SW_Project.DTOs.Doctor;
+using SW_Project.Models;
 using SW_Project.Repositories.IRepository;
 using SW_Project.Services.IServices;
 using SW_Project.Services.Services;
@@ -9,17 +12,23 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace SW_Project.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/doctors")]
     [ApiController]
     public class DoctorController : ControllerBase
     {
         private readonly IDoctorService _doctorService;
         private readonly IDiagnosisService diagnosis;
+        private readonly ISecretaryRepository secretaryRepo;
+        private readonly IAuthService authService;
+        private readonly IDoctorRepository doctorRepo;
 
-        public DoctorController(IDoctorService doctorService, IDiagnosisService diagnosis)
+        public DoctorController(IDoctorService doctorService, IDiagnosisService diagnosis,ISecretaryRepository secretaryRepo,IAuthService authService,IDoctorRepository doctorRepo)
         {
             _doctorService = doctorService;
             this.diagnosis = diagnosis;
+            this.secretaryRepo = secretaryRepo;
+            this.authService = authService;
+            this.doctorRepo = doctorRepo;
         }
 
         [HttpGet("{id:int}")]
@@ -89,31 +98,25 @@ namespace SW_Project.Controllers
         //    }
         //}
 
-        [HttpPut("{id}")]
+        [HttpPut("my-profile")]
         [Authorize(Roles = "Doctor")]
-        public IActionResult Update(int id, [FromBody] UpdateDoctorDto doctor)
+        public IActionResult Update([FromBody] UpdateDoctorDto doctor)
         {
-            var existingDoctor = _doctorService.GetById(id);
-            if (existingDoctor == null)
-            {
-                return NotFound(new { Message = $"Cannot update. Doctor with ID {id} not found." });
-            }
+            var userId = int.Parse(User.FindFirst("Id").Value);
 
-            _doctorService.Update(id, doctor);
+            _doctorService.Update(userId, doctor);
+
             return Ok(new { Message = "Doctor updated successfully." });
 
         }
 
-        [HttpDelete("{id}")]
+        [HttpDelete("delete-my-account")]
         [Authorize(Roles = "Doctor")]
-        public IActionResult Delete(int id)
+        public IActionResult Delete()
         {
-            var existingDoctor = _doctorService.GetById(id);
-            if (existingDoctor == null)
-            {
-                return NotFound(new { Message = $"Cannot delete. Doctor with ID {id} not found." });
-            }
-            _doctorService.Delete(id);
+            var userId = int.Parse(User.FindFirst("Id").Value);
+
+            _doctorService.Delete(userId);
             return Ok(new { Message = "Doctor deleted successfully." });
 
         }
@@ -127,6 +130,58 @@ namespace SW_Project.Controllers
             var patients = diagnosis.GetPatientsForDoctor(userId);
 
             return Ok(patients);
+        }
+
+        [HttpPost("add-secretary")]
+        [Authorize(Roles = "Doctor")]
+        public async Task<IActionResult> AddSecretary([FromBody] RegisterSecretaryDto dto)
+        {
+            if (!ModelState.IsValid) return BadRequest(ModelState);
+
+            try
+            {
+                var doctorUserId = int.Parse(User.FindFirst("Id").Value);
+
+                var doctor = doctorRepo.GetByUserId(doctorUserId);
+                if (doctor == null) return NotFound("Doctor profile not found.");
+
+                var secretaryUserId = await authService.RegisterSecretaryUser(dto);
+
+                var newSecretary = new Secretary
+                {
+                    UserId = secretaryUserId,
+                    DoctorId = doctor.Id
+                };
+
+                secretaryRepo.Add(newSecretary);
+                secretaryRepo.Save(); 
+
+                return Ok(new { Message = $"Secretary {dto.Name} added and linked successfully!" });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new { Error = ex.Message });
+            }
+        }
+
+        [HttpDelete("remove-secretary/{id}")]
+        [Authorize(Roles = "Doctor")]
+        public IActionResult DeleteSecretary(int id)
+        {
+            var doctorUserId = int.Parse(User.FindFirst("Id").Value);
+            var doctor = doctorRepo.GetByUserId(doctorUserId);
+
+            var secretary = secretaryRepo.GetById(id);
+
+            if (secretary == null)
+                return NotFound("Secretary not found.");
+
+            if (secretary.DoctorId != doctor.Id)
+                return Forbid("You are not authorized to remove this secretary.");
+
+            secretaryRepo.Delete(id);
+
+            return Ok(new { Message = "Secretary removed from your clinic successfully." });
         }
     }
 }

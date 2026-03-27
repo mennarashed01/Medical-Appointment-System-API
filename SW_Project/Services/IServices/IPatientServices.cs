@@ -5,8 +5,8 @@ namespace SW_Project.Services.IServices
     public interface IPatientServices
     {
         //void Create(CreatePatientDto dto);
-        void Update(int id, UpdatePatientDto dto);
-        void Delete(int id);
+        void Update(int userId, UpdatePatientDto dto);
+        void Delete(int userId);
 
         PatientResponseDto GetById(int id);
         List<PatientResponseDto> GetByName(string name);

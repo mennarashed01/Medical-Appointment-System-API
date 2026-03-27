@@ -7,5 +7,7 @@ namespace SW_Project.Repositories.IRepository
         void Add(Secretary secertary);
         Secretary GetByUserId(int userId);
         void Save();
+        void Delete(int id);
+        Secretary GetById(int id);
     }
 }

@@ -10,7 +10,7 @@ using SW_Project.Services.Services;
 namespace SW_Project.Controllers
 {
     [Authorize(Roles = "Doctor")]
-    [Route("api/[controller]")]
+    [Route("api/diagnoses")]
     [ApiController]
     public class DiagnosisController : ControllerBase
     {
