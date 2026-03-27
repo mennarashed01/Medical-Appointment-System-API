@@ -90,6 +90,7 @@ namespace SW_Project
             builder.Services.AddSingleton<IDoctorRecommendationService, DoctorRecommendationService>();
             builder.Services.AddScoped<IDiagnosisService, DiagnosisService>();
             builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+            builder.Services.AddScoped<IDoctorFacade, DoctorFacade>();
 
             var app = builder.Build();
 

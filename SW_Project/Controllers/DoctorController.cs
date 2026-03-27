@@ -16,26 +16,27 @@ namespace SW_Project.Controllers
     [ApiController]
     public class DoctorController : ControllerBase
     {
-        private readonly IDoctorService _doctorService;
-        private readonly IDiagnosisService diagnosis;
-        private readonly ISecretaryRepository secretaryRepo;
-        private readonly IAuthService authService;
-        private readonly IDoctorRepository doctorRepo;
+        private readonly IDoctorFacade _facade;
 
-        public DoctorController(IDoctorService doctorService, IDiagnosisService diagnosis,ISecretaryRepository secretaryRepo,IAuthService authService,IDoctorRepository doctorRepo)
+        //public DoctorController(IDoctorService doctorService, IDiagnosisService diagnosis,ISecretaryRepository secretaryRepo,IAuthService authService,IDoctorRepository doctorRepo)
+        //{
+        //    _doctorService = doctorService;
+        //    this.diagnosis = diagnosis;
+        //    this.secretaryRepo = secretaryRepo;
+        //    this.authService = authService;
+        //    this.doctorRepo = doctorRepo;
+        //}
+
+        public DoctorController(IDoctorFacade _facade)
         {
-            _doctorService = doctorService;
-            this.diagnosis = diagnosis;
-            this.secretaryRepo = secretaryRepo;
-            this.authService = authService;
-            this.doctorRepo = doctorRepo;
+            this._facade = _facade;
         }
 
         [HttpGet("{id:int}")]
         [Authorize]
         public ActionResult<DoctorResponseDto> GetById(int id)
         {
-            var doctor = _doctorService.GetById(id);
+            var doctor = _facade.GetById(id);
             if (doctor == null) 
                 return NotFound(new { Message = $"Doctor with ID {id} not found." });
             
@@ -46,7 +47,7 @@ namespace SW_Project.Controllers
         [Authorize]
         public ActionResult<List<DoctorResponseDto>> GetByName(string name)
         {
-            var doctor = _doctorService.GetByName(name);
+            var doctor = _facade.GetByName(name);
             if (doctor == null) 
                 return NotFound(new { Message = $"Doctor with Name:  {name} not found." });
             
@@ -57,7 +58,7 @@ namespace SW_Project.Controllers
         [Authorize]
         public ActionResult<List<DoctorResponseDto>> GeyBySymptom(string symptomName)
         {
-            var doctors = _doctorService.GetBySymptoms(symptomName);
+            var doctors = _facade.GetBySymptoms(symptomName);
             if (doctors == null) 
                 return NotFound(new { Message = $"Doctors with Symptom:  {symptomName} not found." });
             
@@ -68,7 +69,7 @@ namespace SW_Project.Controllers
         [Authorize]
         public ActionResult<List<DoctorResponseDto>> GetBySpecialization(string specName)
         {
-            var doctors = _doctorService.GetBySpecialization(specName);
+            var doctors = _facade.GetBySpecialization(specName);
             if (doctors == null) 
                 return NotFound(new { Message = $"Doctors with Specialization:  {specName} not found." });
             
@@ -79,7 +80,7 @@ namespace SW_Project.Controllers
         [Authorize]
         public ActionResult<List<DoctorResponseDto>> GetAll()
         {
-            var doctors = _doctorService.GetAll();
+            var doctors = _facade.GetAll();
             return Ok(doctors);
         }
 
@@ -100,11 +101,11 @@ namespace SW_Project.Controllers
 
         [HttpPut("my-profile")]
         [Authorize(Roles = "Doctor")]
-        public IActionResult Update([FromBody] UpdateDoctorDto doctor)
+        public IActionResult Update([FromBody] UpdateDoctorDto doctor)              
         {
             var userId = int.Parse(User.FindFirst("Id").Value);
 
-            _doctorService.Update(userId, doctor);
+            _facade.UpdateDoctorProfile(userId, doctor);
 
             return Ok(new { Message = "Doctor updated successfully." });
 
@@ -116,7 +117,7 @@ namespace SW_Project.Controllers
         {
             var userId = int.Parse(User.FindFirst("Id").Value);
 
-            _doctorService.Delete(userId);
+            _facade.DeleteDoctor(userId);
             return Ok(new { Message = "Doctor deleted successfully." });
 
         }
@@ -127,7 +128,7 @@ namespace SW_Project.Controllers
         {
             var userId = int.Parse(User.FindFirst("Id").Value);
 
-            var patients = diagnosis.GetPatientsForDoctor(userId);
+            var patients = _facade.GetMyPatients(userId);
 
             return Ok(patients);
         }
@@ -136,52 +137,24 @@ namespace SW_Project.Controllers
         [Authorize(Roles = "Doctor")]
         public async Task<IActionResult> AddSecretary([FromBody] RegisterSecretaryDto dto)
         {
-            if (!ModelState.IsValid) return BadRequest(ModelState);
 
-            try
-            {
-                var doctorUserId = int.Parse(User.FindFirst("Id").Value);
+            var userId = int.Parse(User.FindFirst("Id").Value);
 
-                var doctor = doctorRepo.GetByUserId(doctorUserId);
-                if (doctor == null) return NotFound("Doctor profile not found.");
+            var message = await _facade.AddSecretaryAsync(userId, dto);
 
-                var secretaryUserId = await authService.RegisterSecretaryUser(dto);
-
-                var newSecretary = new Secretary
-                {
-                    UserId = secretaryUserId,
-                    DoctorId = doctor.Id
-                };
-
-                secretaryRepo.Add(newSecretary);
-                secretaryRepo.Save(); 
-
-                return Ok(new { Message = $"Secretary {dto.Name} added and linked successfully!" });
-            }
-            catch (Exception ex)
-            {
-                return BadRequest(new { Error = ex.Message });
-            }
+            return Ok(new { Message = $"Secretary {dto.Name} added and linked successfully!" });
+            
         }
 
         [HttpDelete("remove-secretary/{id}")]
         [Authorize(Roles = "Doctor")]
         public IActionResult DeleteSecretary(int id)
         {
-            var doctorUserId = int.Parse(User.FindFirst("Id").Value);
-            var doctor = doctorRepo.GetByUserId(doctorUserId);
+            var userId = int.Parse(User.FindFirst("Id").Value);
 
-            var secretary = secretaryRepo.GetById(id);
+            _facade.RemoveSecretary(userId, id);
 
-            if (secretary == null)
-                return NotFound("Secretary not found.");
-
-            if (secretary.DoctorId != doctor.Id)
-                return Forbid("You are not authorized to remove this secretary.");
-
-            secretaryRepo.Delete(id);
-
-            return Ok(new { Message = "Secretary removed from your clinic successfully." });
+            return Ok(new { Message = "Secretary removed successfully." }); 
         }
     }
 }
