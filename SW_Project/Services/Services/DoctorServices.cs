@@ -208,7 +208,8 @@ namespace SW_Project.Services.Services
         public List<DoctorResponseDto> GetBySpecialization(string specializationName)
         {
             var doctors = _repo.GetAll()
-                .Where(d => d.Specialization.Name.Contains(specializationName))
+                .Where(d => d.Specialization.Name
+                    .Contains(specializationName, StringComparison.OrdinalIgnoreCase))
                 .ToList();
 
             return doctors.Select(d => new DoctorResponseDto

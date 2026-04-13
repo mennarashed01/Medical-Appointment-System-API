@@ -9,7 +9,7 @@ namespace SW_Project.Services.Services
     public class DoctorRecommendationService : IDoctorRecommendationService
     {
         private readonly IServiceProvider _serviceProvider;
-
+    
         public DoctorRecommendationService(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;

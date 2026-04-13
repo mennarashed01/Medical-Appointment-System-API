@@ -21,6 +21,18 @@ namespace SW_Project
 
             builder.Services.AddControllers();
 
+            //Add Cores 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy("AllowAll",
+                    policy =>
+                    {
+                        policy.AllowAnyOrigin()
+                              .AllowAnyHeader()
+                              .AllowAnyMethod();
+                    });
+            });
+
             //JWT (Tokens)
             builder.Services.AddAuthentication(options => {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -73,7 +85,8 @@ namespace SW_Project
 
             //DbContext 
             builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+            options.UseSqlServer(
+                builder.Configuration.GetConnectionString("DefaultConnection")));
 
             //Repository
             builder.Services.AddScoped<IDoctorRepository, DoctorRepository>();
@@ -95,18 +108,22 @@ namespace SW_Project
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-            if (app.Environment.IsDevelopment())
-            {
-                app.UseSwagger();
-                app.UseSwaggerUI();
-            }
+            //if (app.Environment.IsDevelopment())
+            //{
+                
+            //}
+            app.UseSwagger();
+            app.UseSwaggerUI();
+
+            app.UseCors("AllowAll");
 
             app.UseHttpsRedirection();
 
             app.UseAuthentication();
             app.UseAuthorization();
 
-
+            app.MapGet("/", () => Results.Redirect("/swagger"))
+                 .ExcludeFromDescription(); 
             app.MapControllers();
 
             app.Run();
