@@ -28,7 +28,7 @@
 
   <!-- Reference the main project so tests can access its classes -->
   <ItemGroup>
-    <ProjectReference Include="../SW_Project/SW_Project.csproj" />
+    <ProjectReference Include="../../SW_Project/SW_Project.csproj" />
   </ItemGroup>
 
 </Project>

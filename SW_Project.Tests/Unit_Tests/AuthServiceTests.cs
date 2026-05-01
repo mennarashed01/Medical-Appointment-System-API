@@ -11,9 +11,6 @@ namespace SW_Project.Tests
 {
     public class AuthServiceTests
     {
-        // ─── Helpers ────────────────────────────────────────────────────────────
-
-        // Creates a real in-memory database so AuthService can run transactions
         private ApplicationDbContext CreateInMemoryDb()
         {
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
@@ -22,7 +19,6 @@ namespace SW_Project.Tests
             return new ApplicationDbContext(options);
         }
 
-        // Builds AuthService with mocked repositories + real in-memory DB
         private AuthService BuildService(
             Mock<IUserRepository> userRepo,
             Mock<IPatientRepository> patientRepo,
@@ -38,19 +34,13 @@ namespace SW_Project.Tests
                 db);
         }
 
-        // ════════════════════════════════════════════════════════════════════════
-        // FUNCTION 1 — Login()
-        // ════════════════════════════════════════════════════════════════════════
-
         [Fact]
         public void Login_ValidCredentials_ReturnsToken()
         {
-            // ARRANGE
             var userRepo = new Mock<IUserRepository>();
             var plainPassword = "password123";
             var hashedPassword = BCrypt.Net.BCrypt.HashPassword(plainPassword);
 
-            // Simulate a user that already exists in the DB
             userRepo.Setup(r => r.GetByEmail("test@test.com"))
                     .Returns(new User
                     {
@@ -70,10 +60,8 @@ namespace SW_Project.Tests
 
             var dto = new LoginDto { Email = "test@test.com", Password = plainPassword };
 
-            // ACT
             var token = service.Login(dto);
 
-            // ASSERT — token should be a non-empty JWT string
             Assert.NotNull(token);
             Assert.NotEmpty(token);
         }
@@ -81,9 +69,7 @@ namespace SW_Project.Tests
         [Fact]
         public void Login_UserNotFound_ThrowsException()
         {
-            // ARRANGE
             var userRepo = new Mock<IUserRepository>();
-            // Simulate no user found for this email
             userRepo.Setup(r => r.GetByEmail(It.IsAny<string>())).Returns((User)null);
 
             var service = BuildService(
@@ -95,7 +81,6 @@ namespace SW_Project.Tests
 
             var dto = new LoginDto { Email = "nobody@test.com", Password = "anything" };
 
-            // ACT + ASSERT — must throw with this message
             var ex = Assert.Throws<Exception>(() => service.Login(dto));
             Assert.Equal("User not Found", ex.Message);
         }
@@ -103,7 +88,6 @@ namespace SW_Project.Tests
         [Fact]
         public void Login_WrongPassword_ThrowsException()
         {
-            // ARRANGE
             var userRepo = new Mock<IUserRepository>();
             userRepo.Setup(r => r.GetByEmail("test@test.com"))
                     .Returns(new User
@@ -124,21 +108,14 @@ namespace SW_Project.Tests
 
             var dto = new LoginDto { Email = "test@test.com", Password = "wrongpassword" };
 
-            // ACT + ASSERT
             var ex = Assert.Throws<Exception>(() => service.Login(dto));
-            Assert.Equal("Invalid Passwoid", ex.Message); // matches the typo in source code
+            Assert.Equal("Invalid Passwoid", ex.Message);
         }
-
-        // ════════════════════════════════════════════════════════════════════════
-        // FUNCTION 2 — Register()
-        // ════════════════════════════════════════════════════════════════════════
 
         [Fact]
         public void Register_DuplicateEmail_ThrowsException()
         {
-            // ARRANGE
             var userRepo = new Mock<IUserRepository>();
-            // Simulate that this email already exists
             userRepo.Setup(r => r.GetByEmail("duplicate@test.com"))
                     .Returns(new User { Id = 99, Email = "duplicate@test.com", Name="X", Password="X", Role=Role.Patient });
 
@@ -158,7 +135,6 @@ namespace SW_Project.Tests
                 Gender = Gender.Male
             };
 
-            // ACT + ASSERT
             var ex = Assert.Throws<Exception>(() => service.Register(dto));
             Assert.Equal("This email is already registered.", ex.Message);
         }
@@ -166,7 +142,6 @@ namespace SW_Project.Tests
         [Fact]
         public void Register_FutureDateOfBirth_ThrowsException()
         {
-            // ARRANGE
             var userRepo = new Mock<IUserRepository>();
             userRepo.Setup(r => r.GetByEmail(It.IsAny<string>())).Returns((User)null);
             userRepo.Setup(r => r.Add(It.IsAny<User>()));
@@ -186,22 +161,16 @@ namespace SW_Project.Tests
                 Password = "pass123",
                 Role = Role.Patient,
                 Gender = Gender.Female,
-                DateOfBirth = DateTime.Now.AddYears(1) // future date — invalid
+                DateOfBirth = DateTime.Now.AddYears(1)
             };
 
-            // ACT + ASSERT
             var ex = Assert.Throws<Exception>(() => service.Register(dto));
             Assert.Contains("Date of birth cannot be in the future", ex.Message);
         }
 
-        // ════════════════════════════════════════════════════════════════════════
-        // FUNCTION 3 — ChangePassword()
-        // ════════════════════════════════════════════════════════════════════════
-
         [Fact]
         public void ChangePassword_CorrectOldPassword_ReturnsSuccessMessage()
         {
-            // ARRANGE
             var userRepo = new Mock<IUserRepository>();
             var oldPassword = "oldpass123";
 
@@ -224,17 +193,14 @@ namespace SW_Project.Tests
                 new Mock<ISecretaryRepository>(),
                 CreateInMemoryDb());
 
-            // ACT
             var result = service.ChangePassword(1, oldPassword, "newpass456");
 
-            // ASSERT
             Assert.Equal("Password updated successfully!", result);
         }
 
         [Fact]
         public void ChangePassword_WrongOldPassword_ThrowsException()
         {
-            // ARRANGE
             var userRepo = new Mock<IUserRepository>();
             userRepo.Setup(r => r.GetById(1))
                     .Returns(new User
@@ -253,7 +219,6 @@ namespace SW_Project.Tests
                 new Mock<ISecretaryRepository>(),
                 CreateInMemoryDb());
 
-            // ACT + ASSERT
             var ex = Assert.Throws<Exception>(() =>
                 service.ChangePassword(1, "wrongpassword", "newpass456"));
             Assert.Equal("Old password is incorrect.", ex.Message);

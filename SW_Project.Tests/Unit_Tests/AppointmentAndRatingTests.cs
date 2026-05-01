@@ -20,24 +20,17 @@ namespace SW_Project.Tests
             return new ApplicationDbContext(options);
         }
 
-        // ════════════════════════════════════════════════════════════════════════
-        // FUNCTION 4 — BookAppointment()
-        // ════════════════════════════════════════════════════════════════════════
-
         [Fact]
         public void BookAppointment_ValidData_CreatesAppointmentWithPendingStatus()
         {
-            // ARRANGE
             var appointmentRepo = new Mock<IAppointmentRepository>();
             var doctorRepo      = new Mock<IDoctorRepository>();
             var patientRepo     = new Mock<IPatientRepository>();
             var secretaryRepo   = new Mock<ISecretaryRepository>();
 
-            // Simulate a patient that exists for userId = 1
             patientRepo.Setup(r => r.GetByUserId(1))
                        .Returns(new Patient { Id = 10, UserId = 1, Gender = Gender.Male });
 
-            // Simulate a doctor that exists for doctorId = 5
             doctorRepo.Setup(r => r.GetById(5))
                       .Returns(new Doctor
                       {
@@ -47,7 +40,6 @@ namespace SW_Project.Tests
                           AppointmentPrice = 200
                       });
 
-            // Capture what gets passed to Add() so we can inspect it
             Appointment? savedAppointment = null;
             appointmentRepo.Setup(r => r.Add(It.IsAny<Appointment>()))
                            .Callback<Appointment>(a => savedAppointment = a);
@@ -66,10 +58,8 @@ namespace SW_Project.Tests
                 Date = DateTime.Now.AddDays(2)
             };
 
-            // ACT
             service.BookAppointment(userId: 1, dto: dto);
 
-            // ASSERT — appointment was created with correct values
             Assert.NotNull(savedAppointment);
             Assert.Equal(Status.Pending, savedAppointment!.Status);
             Assert.Equal(10, savedAppointment.PatientId);
@@ -80,13 +70,11 @@ namespace SW_Project.Tests
         [Fact]
         public void BookAppointment_PatientNotFound_ThrowsException()
         {
-            // ARRANGE
             var appointmentRepo = new Mock<IAppointmentRepository>();
             var doctorRepo      = new Mock<IDoctorRepository>();
             var patientRepo     = new Mock<IPatientRepository>();
             var secretaryRepo   = new Mock<ISecretaryRepository>();
 
-            // Simulate no patient for userId = 999
             patientRepo.Setup(r => r.GetByUserId(999)).Returns((Patient)null);
 
             var service = new AppointmentService(
@@ -98,7 +86,6 @@ namespace SW_Project.Tests
 
             var dto = new BookAppointmentDto { DoctorId = 1, Date = DateTime.Now.AddDays(1) };
 
-            // ACT + ASSERT
             var ex = Assert.Throws<Exception>(() => service.BookAppointment(userId: 999, dto: dto));
             Assert.Equal("Patient profile not found.", ex.Message);
         }
@@ -106,17 +93,14 @@ namespace SW_Project.Tests
         [Fact]
         public void BookAppointment_DoctorNotFound_ThrowsException()
         {
-            // ARRANGE
             var appointmentRepo = new Mock<IAppointmentRepository>();
             var doctorRepo      = new Mock<IDoctorRepository>();
             var patientRepo     = new Mock<IPatientRepository>();
             var secretaryRepo   = new Mock<ISecretaryRepository>();
 
-            // Patient exists
             patientRepo.Setup(r => r.GetByUserId(1))
                        .Returns(new Patient { Id = 10, UserId = 1, Gender = Gender.Male });
 
-            // But doctor does NOT exist
             doctorRepo.Setup(r => r.GetById(999)).Returns((Doctor)null);
 
             var service = new AppointmentService(
@@ -128,19 +112,13 @@ namespace SW_Project.Tests
 
             var dto = new BookAppointmentDto { DoctorId = 999, Date = DateTime.Now.AddDays(1) };
 
-            // ACT + ASSERT
             var ex = Assert.Throws<Exception>(() => service.BookAppointment(userId: 1, dto: dto));
             Assert.Equal("Doctor not found.", ex.Message);
         }
 
-        // ════════════════════════════════════════════════════════════════════════
-        // FUNCTION 5 — UpdateAppointmentStatus()
-        // ════════════════════════════════════════════════════════════════════════
-
         [Fact]
         public void UpdateAppointmentStatus_ValidId_UpdatesStatus()
         {
-            // ARRANGE
             var appointmentRepo = new Mock<IAppointmentRepository>();
 
             var appointment = new Appointment
@@ -163,18 +141,15 @@ namespace SW_Project.Tests
                 new Mock<IPatientRepository>().Object,
                 CreateInMemoryDb());
 
-            // ACT — change status from Pending to Confirmed
             service.UpdateAppointmentStatus(1, Status.Confirmed);
 
-            // ASSERT — status was changed on the object
             Assert.Equal(Status.Confirmed, appointment.Status);
-            appointmentRepo.Verify(r => r.Save(), Times.Once); // Save() was actually called
+            appointmentRepo.Verify(r => r.Save(), Times.Once);
         }
 
         [Fact]
         public void UpdateAppointmentStatus_InvalidId_ThrowsException()
         {
-            // ARRANGE
             var appointmentRepo = new Mock<IAppointmentRepository>();
             appointmentRepo.Setup(r => r.GetById(999)).Returns((Appointment)null);
 
@@ -185,16 +160,11 @@ namespace SW_Project.Tests
                 new Mock<IPatientRepository>().Object,
                 CreateInMemoryDb());
 
-            // ACT + ASSERT
             var ex = Assert.Throws<Exception>(() =>
                 service.UpdateAppointmentStatus(999, Status.Confirmed));
             Assert.Equal("Appointment not found.", ex.Message);
         }
     }
-
-    // ════════════════════════════════════════════════════════════════════════════
-    // FUNCTION 6 — RateDoctorAsync()
-    // ════════════════════════════════════════════════════════════════════════════
 
     public class DoctorRatingServiceTests
     {
@@ -206,7 +176,6 @@ namespace SW_Project.Tests
 
             var db = new ApplicationDbContext(options);
 
-            // Seed a user, patient, and doctor directly into the in-memory DB
             var user = new User { Id = 1, Name = "Patient One", Email = "p@test.com", Password = "x", Role = Role.Patient };
             db.Users.Add(user);
 
@@ -226,16 +195,13 @@ namespace SW_Project.Tests
         [Fact]
         public async Task RateDoctorAsync_ValidRating_UpdatesDoctorAverageRating()
         {
-            // ARRANGE
             var db = CreateDbWithData();
             var service = new DoctorRatingService(db);
 
             var dto = new RateDoctorDto { DoctorId = 1, Score = 4, Comment = "Great doctor" };
 
-            // ACT
             await service.RateDoctorAsync(userId: 1, dto: dto);
 
-            // ASSERT — doctor's rating should now equal 4.0
             var doctor = db.Doctors.Find(1);
             Assert.Equal(4.0m, doctor!.Rating);
         }
@@ -243,22 +209,17 @@ namespace SW_Project.Tests
         [Fact]
         public async Task RateDoctorAsync_MultipleRatings_CalculatesCorrectAverage()
         {
-            // ARRANGE
             var db = CreateDbWithData();
             var service = new DoctorRatingService(db);
 
-            // First rating: 4
             await service.RateDoctorAsync(userId: 1, dto: new RateDoctorDto { DoctorId = 1, Score = 4 });
 
-            // Add a second patient to rate
             db.Users.Add(new User { Id = 3, Name = "Patient Two", Email = "p2@test.com", Password = "x", Role = Role.Patient });
             db.Patients.Add(new Patient { Id = 2, UserId = 3, Gender = Gender.Female });
             db.SaveChanges();
 
-            // Second rating: 2 → average should be (4+2)/2 = 3.0
             await service.RateDoctorAsync(userId: 3, dto: new RateDoctorDto { DoctorId = 1, Score = 2 });
 
-            // ASSERT
             var doctor = db.Doctors.Find(1);
             Assert.Equal(3.0m, doctor!.Rating);
         }
@@ -266,13 +227,11 @@ namespace SW_Project.Tests
         [Fact]
         public async Task RateDoctorAsync_PatientNotFound_ThrowsException()
         {
-            // ARRANGE
             var db = CreateDbWithData();
             var service = new DoctorRatingService(db);
 
             var dto = new RateDoctorDto { DoctorId = 1, Score = 5 };
 
-            // ACT + ASSERT — userId 999 does not exist as a patient
             var ex = await Assert.ThrowsAsync<Exception>(() =>
                 service.RateDoctorAsync(userId: 999, dto: dto));
             Assert.Equal("Patient not found", ex.Message);
