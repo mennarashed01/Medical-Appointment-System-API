@@ -1,0 +1,20 @@
+﻿using SW_Project.DTOs.Doctor;
+
+namespace SW_Project.Services.IServices
+{
+    public interface IDoctorService
+    {
+        //void Create(CreateDoctorDto dto);
+        void Update(int userId, UpdateDoctorDto dto);
+        void Delete(int id);
+
+        DoctorResponseDto GetById(int id);
+        List<DoctorResponseDto> GetAll();
+        List<DoctorResponseDto> GetByName(string name);
+        List<DoctorResponseDto> GetBySymptoms(string symptomName);
+
+        List<DoctorResponseDto> GetBySpecialization(string specializationName);
+
+    }
+
+}
