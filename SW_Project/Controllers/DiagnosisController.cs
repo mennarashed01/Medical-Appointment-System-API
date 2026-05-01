@@ -6,6 +6,7 @@ using SW_Project.DTOs.Doctor;
 using SW_Project.Models;
 using SW_Project.Services.IServices;
 using SW_Project.Services.Services;
+using System.Security.Claims;
 
 namespace SW_Project.Controllers
 {
@@ -24,7 +25,8 @@ namespace SW_Project.Controllers
         [HttpPost("create")]
         public IActionResult Create([FromBody] CreateDiagnosisDto dto)
         {
-            var doctorId = int.Parse(User.FindFirst("Id").Value);
+            //var doctorId = int.Parse(User.FindFirst("Id").Value); //Before
+            var doctorId = GetUserId(); //After
             service.AddInitialDiagnosis(doctorId, dto);
             return Ok(new { Message = "Diagnosis created ." });
         }
@@ -32,7 +34,8 @@ namespace SW_Project.Controllers
         [HttpPost("re-examine")]
         public IActionResult ReExamination([FromBody] ReExaminationDto dto)
         {
-            var doctorId = int.Parse(User.FindFirst("Id").Value);
+            //var doctorId = int.Parse(User.FindFirst("Id").Value);//Before
+            var doctorId = GetUserId(); //After
             service.AddReExamination(doctorId, dto);
             return Ok(new { Message = "Re-examination saved as a new version." });
         }
@@ -43,5 +46,14 @@ namespace SW_Project.Controllers
             var history = service.GetPatientHistory(patientId);
             return Ok(history);
         }
+
+        //Create ExtentionMethod 
+        private int GetUserId()
+        {
+            return int.Parse(User.FindFirst("Id").Value);
+        }
     }
+    
+        
+    
 }

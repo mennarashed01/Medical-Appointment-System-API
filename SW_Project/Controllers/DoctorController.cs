@@ -9,6 +9,7 @@ using SW_Project.Repositories.IRepository;
 using SW_Project.Services.IServices;
 using SW_Project.Services.Services;
 using System.Diagnostics.CodeAnalysis;
+using System.Numerics;
 
 namespace SW_Project.Controllers
 {
@@ -37,47 +38,46 @@ namespace SW_Project.Controllers
         public ActionResult<DoctorResponseDto> GetById(int id)
         {
             var doctor = _facade.GetById(id);
-            if (doctor == null) 
+            if (doctor == null)
                 return NotFound(new { Message = $"Doctor with ID {id} not found." });
-            
+
             return Ok(doctor);
         }
-        
+
         [HttpGet("search-by-name/{name}")]
-        [Authorize]
         public ActionResult<List<DoctorResponseDto>> GetByName(string name)
         {
             var doctor = _facade.GetByName(name);
-            if (doctor == null) 
+            //if (doctor == null) //Before
+            if (doctor == null || !doctor.Any()) //After (null check "Bug prevention")
                 return NotFound(new { Message = $"Doctor with Name:  {name} not found." });
-            
+
             return Ok(doctor);
         }
-        
-        [HttpGet("search-by-symptom/{symptomName}")]
-        [Authorize]
-        public ActionResult<List<DoctorResponseDto>> GeyBySymptom(string symptomName)
+
+        [HttpGet("search-by-symptom/{symptomName}")] 
+        public ActionResult<List<DoctorResponseDto>> GetBySymptom(string symptomName)
         {
             var doctors = _facade.GetBySymptoms(symptomName);
-            if (doctors == null) 
+            //if (doctors == null) //Before
+            if (doctors == null || !doctors.Any()) //After (null check "Bug prevention")
                 return NotFound(new { Message = $"Doctors with Symptom:  {symptomName} not found." });
-            
+
             return Ok(doctors);
         }
-        
+
         [HttpGet("specialization/{specName}")]
-        [Authorize]
         public ActionResult<List<DoctorResponseDto>> GetBySpecialization(string specName)
         {
             var doctors = _facade.GetBySpecialization(specName);
-            if (doctors == null) 
+            //if (doctors == null) //Before
+            if (doctors == null || !doctors.Any()) //After (null check "Bug prevention")
                 return NotFound(new { Message = $"Doctors with Specialization:  {specName} not found." });
-            
+
             return Ok(doctors);
         }
-        
+
         [HttpGet]
-        [Authorize]
         public ActionResult<List<DoctorResponseDto>> GetAll()
         {
             var doctors = _facade.GetAll();
@@ -101,9 +101,10 @@ namespace SW_Project.Controllers
 
         [HttpPut("my-profile")]
         [Authorize(Roles = "Doctor")]
-        public IActionResult Update([FromBody] UpdateDoctorDto doctor)              
+        public IActionResult Update([FromBody] UpdateDoctorDto doctor)
         {
-            var userId = int.Parse(User.FindFirst("Id").Value);
+            //var userId = int.Parse(User.FindFirst("Id").Value); //Before
+            var userId = GetUserId(); //After
 
             _facade.UpdateDoctorProfile(userId, doctor);
 
@@ -115,7 +116,8 @@ namespace SW_Project.Controllers
         [Authorize(Roles = "Doctor")]
         public IActionResult Delete()
         {
-            var userId = int.Parse(User.FindFirst("Id").Value);
+            //var userId = int.Parse(User.FindFirst("Id").Value); //Before
+            var userId = GetUserId(); //After
 
             _facade.DeleteDoctor(userId);
             return Ok(new { Message = "Doctor deleted successfully." });
@@ -126,7 +128,8 @@ namespace SW_Project.Controllers
         [Authorize(Roles = "Doctor")]
         public IActionResult GetMyPatients()
         {
-            var userId = int.Parse(User.FindFirst("Id").Value);
+            //var userId = int.Parse(User.FindFirst("Id").Value); //Before
+            var userId = GetUserId(); //After
 
             var patients = _facade.GetMyPatients(userId);
 
@@ -138,23 +141,31 @@ namespace SW_Project.Controllers
         public async Task<IActionResult> AddSecretary([FromBody] RegisterSecretaryDto dto)
         {
 
-            var userId = int.Parse(User.FindFirst("Id").Value);
+            //var userId = int.Parse(User.FindFirst("Id").Value); //Before
+            var userId = GetUserId(); //After
 
             var message = await _facade.AddSecretaryAsync(userId, dto);
 
             return Ok(new { Message = $"Secretary {dto.Name} added and linked successfully!" });
-            
+
         }
 
         [HttpDelete("remove-secretary/{id}")]
         [Authorize(Roles = "Doctor")]
         public IActionResult DeleteSecretary(int id)
         {
-            var userId = int.Parse(User.FindFirst("Id").Value);
+            //var userId = int.Parse(User.FindFirst("Id").Value); //Before
+            var userId = GetUserId(); //After
 
             _facade.RemoveSecretary(userId, id);
 
-            return Ok(new { Message = "Secretary removed successfully." }); 
+            return Ok(new { Message = "Secretary removed successfully." });
+        }
+
+        //Extract Method >> to avoid dublicate code
+        private int GetUserId()
+        {
+            return int.Parse(User.FindFirst("Id").Value);
         }
     }
 }

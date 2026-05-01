@@ -28,21 +28,31 @@ namespace SW_Project.Controllers
         [Authorize(Roles ="Patient")]
         public IActionResult Book([FromBody] BookAppointmentDto dto)
         {
-            var userId = int.Parse(User.FindFirst("Id").Value);
+            // Before
+            //var userId = int.Parse(User.FindFirst("Id").Value);
+            // After
+            var userId = GetUserId();
 
-            var patient = patientRepo.GetByUserId(userId);
-            if(patient == null) 
-                return NotFound(new {Message = "Patient profile not found."});
+            //Before >> Move Responsibility to Service
+            //var patient = patientRepo.GetByUserId(userId);
+            //if(patient == null) 
+            //    return NotFound(new {Message = "Patient profile not found."});
 
             try
             {
-                appointmentService.BookAppointment(patient.Id,dto);
+                appointmentService.BookAppointment(userId,dto);
                 return Ok(new { Message = "Appointment request send successfully . Status: Pending." });
             }
             catch (Exception ex)
             {
                 return BadRequest(new { Message = ex.Message });
             }
+        }
+        
+        //Extract Method (improve readability)
+        private int GetUserId()
+        {
+            return int.Parse(User.FindFirst("Id").Value);
         }
 
         [HttpPatch("{id}/status")]
@@ -63,23 +73,53 @@ namespace SW_Project.Controllers
         [HttpGet("my-appointments")]
         public async Task<IActionResult> GetMyAppointments()
         {
-            var roleClaim = User.Claims.FirstOrDefault(c => c.Type.Contains("role", StringComparison.OrdinalIgnoreCase));
+            //Before using GetUserId() and GetUserRole()
+            //var roleClaim = User.Claims.FirstOrDefault(c => c.Type.Contains("role", StringComparison.OrdinalIgnoreCase));
+
+            //if (roleClaim == null)
+            //    return Unauthorized("Role claim not found in token.");
+
+            //var userIdClaim = User.Claims.FirstOrDefault(c => c.Type.Equals("Id", StringComparison.OrdinalIgnoreCase) || c.Type.Contains("nameidentifier"));
+
+            //if (userIdClaim == null)
+            //    return Unauthorized("User ID claim not found");
+
+            //int userId = int.Parse(userIdClaim.Value);
+
+            //if (!Enum.TryParse(roleClaim.Value, true, out Role userRole))
+            //    return BadRequest("Invalid role format in token.");
+
+            //var result = await appointmentService.GetUserAppointmentsAsync(userId, userRole);
+            //return Ok(result);
+
+            //After
+            try
+            {
+                var userId = GetUserId();
+                var role = GetUserRole();
+
+                var result = await appointmentService.GetUserAppointmentsAsync(userId, role);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+        }
+
+        //Extract Method
+        private Role GetUserRole()
+        {
+            var roleClaim = User.Claims.FirstOrDefault(c =>
+                c.Type.Contains("role", StringComparison.OrdinalIgnoreCase));
 
             if (roleClaim == null)
-                return Unauthorized("Role claim not found in token.");
+                throw new Exception("Role claim not found");
 
-            var userIdClaim = User.Claims.FirstOrDefault(c => c.Type.Equals("Id", StringComparison.OrdinalIgnoreCase) || c.Type.Contains("nameidentifier"));
+            if (!Enum.TryParse(roleClaim.Value, true, out Role role))
+                throw new Exception("Invalid role");
 
-            if (userIdClaim == null)
-                return Unauthorized("User ID claim not found");
-
-            int userId = int.Parse(userIdClaim.Value);
-
-            if (!Enum.TryParse(roleClaim.Value, true, out Role userRole))
-                return BadRequest("Invalid role format in token.");
-
-            var result = await appointmentService.GetUserAppointmentsAsync(userId, userRole);
-            return Ok(result);
+            return role;
         }
     }
 }

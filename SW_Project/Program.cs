@@ -104,6 +104,7 @@ namespace SW_Project
             builder.Services.AddScoped<IDiagnosisService, DiagnosisService>();
             builder.Services.AddScoped<IAppointmentService, AppointmentService>();
             builder.Services.AddScoped<IDoctorFacade, DoctorFacade>();
+            builder.Services.AddScoped<IDoctorRatingService, DoctorRatingService>();
 
             var app = builder.Build();
 

@@ -13,24 +13,33 @@ namespace SW_Project.Services.Services
         private readonly IAppointmentRepository appointmentRepo;
         private readonly IDoctorRepository doctorRepo;
         private readonly ISecretaryRepository secretaryRepo;
+        private readonly IPatientRepository patientRepo;
         private readonly ApplicationDbContext context;
 
-        public AppointmentService(IAppointmentRepository appointmentRepo, IDoctorRepository doctorRepo,ISecretaryRepository secretaryRepo,ApplicationDbContext context)
+        public AppointmentService(IAppointmentRepository appointmentRepo, IDoctorRepository doctorRepo,ISecretaryRepository secretaryRepo,IPatientRepository patientRepo,ApplicationDbContext context)
         {
             this.appointmentRepo = appointmentRepo;
             this.doctorRepo = doctorRepo;
             this.secretaryRepo = secretaryRepo;
+            this.patientRepo = patientRepo;
             this.context = context;
         }
-        public void BookAppointment(int patientId, BookAppointmentDto dto)
+
+
+        public void BookAppointment(int userId, BookAppointmentDto dto)
         {
+            //After >> Move Responsibility to Service (move Logic "Separation of Concerns")
+            var patient = patientRepo.GetByUserId(userId);
+            if (patient == null)
+                throw new Exception("Patient profile not found.");
+
             var doctor = doctorRepo.GetById(dto.DoctorId);
             if (doctor == null)
                 throw new Exception("Doctor not found.");
 
             var appointment = new Appointment
             {
-                PatientId = patientId,
+                PatientId = patient.Id,
                 DoctorId = dto.DoctorId,
                 Date = dto.Date,
                 Status = Status.Pending,
