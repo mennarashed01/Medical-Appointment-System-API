@@ -18,31 +18,33 @@ namespace SW_Project.Services.Services
         public async Task RateDoctorAsync(int userId, RateDoctorDto dto)
         {
             var patient = await _context.Patients
-            .FirstOrDefaultAsync(p => p.UserId == userId);
+                .FirstOrDefaultAsync(p => p.UserId == userId);
 
             if (patient == null)
                 throw new Exception("Patient not found");
+
+            var doctor = await _context.Doctors.FindAsync(dto.DoctorId)
+                         ?? throw new Exception("Doctor not found");
 
             var rating = new DoctorRating
             {
                 PatientId = patient.Id,
                 DoctorId = dto.DoctorId,
                 Score = dto.Score,
-                Comment = dto.Comment
+                Comment = dto.Comment,
+                Patient = patient,
+                Doctor = doctor
             };
 
             _context.DoctorRatings.Add(rating);
 
-            var doctor = await _context.Doctors.FindAsync(dto.DoctorId);
+            await _context.SaveChangesAsync();
 
-            if (doctor != null)
-            {
-                var average = await _context.DoctorRatings
-                    .Where(r => r.DoctorId == dto.DoctorId)
-                    .AverageAsync(r => (decimal)r.Score);
+            var average = await _context.DoctorRatings
+                .Where(r => r.DoctorId == dto.DoctorId)
+                .AverageAsync(r => (decimal)r.Score);
 
-                doctor.Rating = Math.Round(average, 1);
-            }
+            doctor.Rating = Math.Round(average, 1);
 
             await _context.SaveChangesAsync();
         }

@@ -75,7 +75,7 @@ namespace SW_Project.Tests
             var patientRepo     = new Mock<IPatientRepository>();
             var secretaryRepo   = new Mock<ISecretaryRepository>();
 
-            patientRepo.Setup(r => r.GetByUserId(999)).Returns((Patient)null);
+            patientRepo.Setup(r => r.GetByUserId(999)).Returns((Patient)null!);
 
             var service = new AppointmentService(
                 appointmentRepo.Object,
@@ -101,7 +101,7 @@ namespace SW_Project.Tests
             patientRepo.Setup(r => r.GetByUserId(1))
                        .Returns(new Patient { Id = 10, UserId = 1, Gender = Gender.Male });
 
-            doctorRepo.Setup(r => r.GetById(999)).Returns((Doctor)null);
+            doctorRepo.Setup(r => r.GetById(999)).Returns((Doctor)null!);
 
             var service = new AppointmentService(
                 appointmentRepo.Object,

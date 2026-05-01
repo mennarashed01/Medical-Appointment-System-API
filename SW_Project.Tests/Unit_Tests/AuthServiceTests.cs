@@ -6,6 +6,7 @@ using SW_Project.Models;
 using SW_Project.DTOs.Auth;
 using SW_Project.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 
 namespace SW_Project.Tests
 {
@@ -15,6 +16,7 @@ namespace SW_Project.Tests
         {
             var options = new DbContextOptionsBuilder<ApplicationDbContext>()
                 .UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString())
+                .ConfigureWarnings(x => x.Ignore(InMemoryEventId.TransactionIgnoredWarning))
                 .Options;
             return new ApplicationDbContext(options);
         }
@@ -70,7 +72,7 @@ namespace SW_Project.Tests
         public void Login_UserNotFound_ThrowsException()
         {
             var userRepo = new Mock<IUserRepository>();
-            userRepo.Setup(r => r.GetByEmail(It.IsAny<string>())).Returns((User)null);
+            userRepo.Setup(r => r.GetByEmail(It.IsAny<string>())).Returns((User)null!);
 
             var service = BuildService(
                 userRepo,
@@ -143,7 +145,7 @@ namespace SW_Project.Tests
         public void Register_FutureDateOfBirth_ThrowsException()
         {
             var userRepo = new Mock<IUserRepository>();
-            userRepo.Setup(r => r.GetByEmail(It.IsAny<string>())).Returns((User)null);
+            userRepo.Setup(r => r.GetByEmail(It.IsAny<string>())).Returns((User)null!);
             userRepo.Setup(r => r.Add(It.IsAny<User>()));
             userRepo.Setup(r => r.Save());
 

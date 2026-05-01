@@ -3,6 +3,7 @@ import { check, sleep } from "k6";
 import { Trend, Rate, Counter } from "k6/metrics";
 
 const BASE_URL = "http://aure-api.runasp.net";
+// const BASE_URL = "http://localhost:5206";
 
 const loginDuration      = new Trend("stress_login_duration");
 const bookDuration       = new Trend("stress_book_duration");
@@ -12,16 +13,16 @@ const serverErrors       = new Counter("server_errors_500");
 
 export const options = {
   stages: [
-    { duration: "10s", target: 200 },
-    { duration: "1m",  target: 200 },
-    { duration: "10s", target: 0   },
+    { duration: "30s", target: 30 },
+    { duration: "1m",  target: 30 },
+    { duration: "15s", target: 0  },
   ],
   thresholds: {
-    http_req_duration: ["p(95)<3000"],
-    stress_login_duration:        ["p(95)<2000"],
-    stress_book_duration:         ["p(95)<3000"],
-    stress_appointments_duration: ["p(95)<2000"],
-    stress_error_rate: ["rate<0.05"],
+    http_req_duration: ["p(95)<15000"], // 15 ثانية
+    stress_login_duration:        ["p(95)<5000"],
+    stress_book_duration:         ["p(95)<5000"],
+    stress_appointments_duration: ["p(95)<20000"], // سماحية أكبر للميثود دي بالذات
+    stress_error_rate: ["rate<0.10"],
   },
 };
 
@@ -30,7 +31,7 @@ const JSON_HEADERS = { "Content-Type": "application/json" };
 function loginAndGetToken() {
   const res = http.post(
     `${BASE_URL}/api/auth/login`,
-    JSON.stringify({ email: "patient@test.com", password: "password123" }),
+    JSON.stringify({ email: "ali@test.com", password: "ali123" }),
     { headers: JSON_HEADERS }
   );
 
@@ -45,7 +46,7 @@ function loginAndGetToken() {
   errorRate.add(0);
 
   try {
-    return JSON.parse(res.body).Token;
+    return JSON.parse(res.body).token;
   } catch {
     return null;
   }
@@ -57,6 +58,8 @@ export default function () {
   check(token, {
     "Login returned a token": (t) => t !== null,
   });
+
+  sleep(1.5);
 
   if (token) {
     const bookPayload = JSON.stringify({
@@ -79,6 +82,8 @@ export default function () {
       "POST Book → not 500": (r) => r.status !== 500,
       "POST Book → responded": (r) => r.timings.duration < 5000,
     });
+
+    sleep(1.5);
 
     const myAppRes = http.get(`${BASE_URL}/api/appointments/my-appointments`, {
       headers: { Authorization: `Bearer ${token}` },

@@ -143,12 +143,13 @@ namespace SW_Project.Services.Services
 
                     return "Registration Successful!";
                 }
-                catch (Exception ex)
+                catch 
                 {
                     transaction.Rollback(); //if there is any problem the user will delete
 
-                    var innerMessage = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
-                    throw new Exception($"Database Error: {innerMessage}");
+                    //var innerMessage = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+                    //throw new Exception(ex.Message);
+                    throw;
                 }
             }
            
