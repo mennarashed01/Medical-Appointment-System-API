@@ -28,7 +28,7 @@ namespace SW_Project.DTOs.Auth
 
         public string? ClinicLocation { get; set; }
         public string? ContactInfo { get; set; }
-        public List<int> SymptomIds { get; set; }
+        public List<int>? SymptomIds { get; set; }
 
         [Required]
         [Column(TypeName = "decimal(18,2)")]
