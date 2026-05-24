@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.14.36301.6 d17.14
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SW_Project", "SW_Project\SW_Project.csproj", "{31ABA542-B1DF-4474-AD29-8C44882B5F69}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MedicalAppointmentSystemAPI", "MedicalAppointmentSystemAPI\MedicalAppointmentSystemAPI.csproj", "{31ABA542-B1DF-4474-AD29-8C44882B5F69}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
